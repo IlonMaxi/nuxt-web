@@ -437,8 +437,8 @@ header {
 .mobile-menu-panel {
   position: fixed;
   top: 0;
-  right: -250px;
-  width: 250px;
+  right: -280px;
+  width: 280px;
   background-color: white;
   transition: right 0.3s ease;
   z-index: 1000;
@@ -477,7 +477,7 @@ header {
   margin-top: 15px;
   border-radius: 18px;
   height: 51px;
-  width: 220px;
+  width: 85%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -566,6 +566,12 @@ img {
 
   .buttons {
     margin: 0px;
+    margin-right: 5px;
+  }
+
+  .dropdown-mob {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 

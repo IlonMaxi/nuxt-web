@@ -120,6 +120,7 @@
 body {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 

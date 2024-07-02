@@ -2,6 +2,9 @@
 import LoginForm from '../components/LoginForm.vue';
 import RegistrationForm from '../components/RegistrationForm.vue';
 import ConfirmationNumber from '../components/ConfirmationNumber.vue';
+import User from "../plugins/classes/User";
+import request from 'superagent';
+import Cookies from 'js-cookie';
 
 export default {
   components: {
@@ -23,8 +26,21 @@ export default {
       hideLogo: false,
       screenWidth: window.innerWidth,
       showDropdown: false,
-      mobileMenuHeight: '200px'
+      mobileMenuHeight: '200px',
+      user: new User()
     };
+  },
+  async mounted() {
+    await this.$runTokenVerification();
+    if (await this.getData()) {
+    }
+
+    document.addEventListener('click', this.handleOutsideClick);
+    window.addEventListener('resize', this.updateScreenWidth);
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.handleOutsideClick);
+    window.removeEventListener('resize', this.updateScreenWidth);
   },
   methods: {
     toggleConfNumbForm() {
@@ -74,18 +90,41 @@ export default {
     handleClick() {
       this.toggleCategories();
       this.toggleMobileMenuHeight();
+    },
+  async getData() {
+    const url = 'http://localhost:8080/authentication/authorization';
+    const token = Cookies.get('tokenJwt');
+    let response = {};
+
+    const headers = {
+      'requestRoute': 'users',
+      'requestMethod': 'GET'
+    };
+
+    const queryParams = {
+      token: token
+    };
+
+    const body = {}
+    try {
+      response = await request.post(url)
+        .set(headers)
+        .query(queryParams)
+        .send(body);
+
+    } catch (error) {
+      console.error('Ошибка при загрузке данных:', error);
+      await alert('К сожалению, произошла ошибка при загрузке данных. Пожалуйста, попробуйте ещё раз чуть позже. Если проблема сохранится, обратитесь в нашу службу технической поддержки. Мы всегда готовы помочь!');
+      await this.$router.push('/auth');
+      return false;
     }
-  },
-  async mounted() {
-    await this.$runTokenVerification();
-  },
-  mounted() {
-    document.addEventListener('click', this.handleOutsideClick);
-    window.addEventListener('resize', this.updateScreenWidth);
-  },
-  beforeDestroy() {
-    document.removeEventListener('click', this.handleOutsideClick);
-    window.removeEventListener('resize', this.updateScreenWidth);
+
+    let jsonObject = JSON.parse(response.text);
+    await Object.assign(this.user, jsonObject);
+
+    console.log(this.users)
+    return true;
+  }
   }
 }
 </script>
@@ -104,8 +143,9 @@ export default {
       
       <div :class="{'show-mobile-menu': showMobileMenu}" class="mobile-menu-panel"  :style="{ height: mobileMenuHeight }" ref="mobileMenu">
         <button @click="goToProfileSettings" class="button-account-mob">
-          <img src="@/assets/images/icon-person.svg" alt="Login Icon" style="margin-right: 8px;" />
-          Мой профиль
+          <img :src="this.user.photoUrl !== null && this.user.photoUrl !== '' ? require(`../static/${this.user.photoUrl}`) : require('../assets/images/ava-settings.svg')"
+           alt="Login Icon" style="margin-right: 8px;" />
+          {{ this.user.name}}
         </button>
         <button @click="$router.push('/adplace')" class="button-place-mini-mob">
           Разместить объявление
@@ -427,8 +467,8 @@ header.scrolled {
 .mobile-menu-panel {
   position: fixed;
   top: 0;
-  right: -250px;
-  width: 250px;
+  right: -280px;
+  width: 280px;
   background-color: white;
   transition: right 0.3s ease;
   z-index: 1000;
@@ -461,18 +501,28 @@ header.scrolled {
   box-shadow: -2px 0 5px rgba(0,0,0,0.5);
 }
 
-.button-account-mob,
+.button-account-mob, 
 .button-place-mini-mob {
   border: 1px solid black;
   margin-top: 15px;
   border-radius: 18px;
   height: 51px;
-  width: 220px;
+  width: 85%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #0021CF;
   font-family: 'Comfortaa';
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+.button-account-mob img{
+  width: 40px;
+  height: 40px;
+  border-radius: 25px;
+  border: 2px solid #0021CF;
 }
 
 .catalog-mob {
@@ -573,6 +623,12 @@ img {
 
   .buttons {
     margin: 0px;
+    margin-right: 5px;
+  }
+
+  .dropdown-mob {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 
@@ -630,6 +686,10 @@ img {
 @media (min-width: 1025px) {
   .search input{
     width: 25vw;
+  }
+
+  .mobile-menu-panel {
+    display: none;
   }
 
   .search{

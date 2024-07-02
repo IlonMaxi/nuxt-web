@@ -117,7 +117,7 @@ export default {
   <nav>
     <div class="main-nav-container">
       <div class="image-container">
-        <img src="../assets/images/ava.svg" alt="Ваша аватарка" class="zoomable-image">
+        <img :src="this.user.photoUrl !== null && this.user.photoUrl !== '' ? require(`../static/${this.user.photoUrl}`) : require('../assets/images/ava-settings.svg')" alt="Ваша аватарка" class="zoomable-image">
       </div>
         <div class="info-container">
         <button id="userName" onclick="window.location.href='#'">{{ this.user.name}}</button>
@@ -168,7 +168,7 @@ nav {
   text-align: left;
   color: #000;
   font-family: Comfortaa;
-  font-size: 25px;
+  font-size: 36px;
   font-style: normal;
   font-weight: 100;
   line-height: normal;
@@ -257,6 +257,11 @@ nav {
 .main-nav-container {
   flex-direction: column;
   align-items: center;
+}
+
+.main-nav-container img {
+  border-radius: 25px;
+  border: 3px solid #0021CF;
 }
 
 .buttons-nav {
