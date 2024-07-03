@@ -241,6 +241,7 @@ export default {
         Разместить объявление
       </button>
       <button @click="goToProfileSettings" class="button-account">
+        <img :src="this.user.photoUrl !== null && this.user.photoUrl !== '' ? require(`../static/${this.user.photoUrl}`) : require('../assets/images/ava-settings.svg')"/>
       </button>
 
     </div>
@@ -525,6 +526,12 @@ header.scrolled {
   border: 2px solid #0021CF;
 }
 
+.button-account img{
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+}
+
 .catalog-mob {
   margin-bottom: 10px;
   margin-top: 15px;
@@ -661,7 +668,6 @@ img {
 
   .buttons button {
     font-size: 18px;
-    padding: 8px;
     margin-right: 1vw;
   }
 
@@ -700,7 +706,6 @@ img {
   
   .buttons button {
     font-size: 18px;
-    padding: 10px;
     margin-right: 1vw;
   }
 

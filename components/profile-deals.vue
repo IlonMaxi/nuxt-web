@@ -1,5 +1,36 @@
 <script setup>
+import request from 'superagent';
 
+// export default { 
+//   data() {
+//     return {
+//       ads: []
+//     };
+//   },
+//   async mounted() {
+//     await this.fetchUserAds();
+//   },
+//   methods: {
+//     async fetchUserAds() {
+//       const url = 'http://localhost:8081/api/listings/user';
+//       let response = {};
+
+//       const headers = {
+//         'userId': 6  // Using test userId
+//       };
+//       //TODO
+
+//       try {
+//         response = await request.get(url)
+//           .set(headers);
+
+//         this.ads = response.body;
+//       } catch (error) {
+//         console.error("Ошибка получыения данных:", error);
+//       }
+//     }
+//   }
+// }
 </script>
 
 <template>
@@ -273,8 +304,16 @@ h3 {
   }
 
   .container-deals {
-    width: auto;
+    width: 55vw;
     height: auto;
+  }
+}
+
+@media (min-width: 880px) {
+  .buttons-in-content {
+    width: 15vw;
+    height: auto;
+    min-height: 60.8px;
   }
 }
 </style>

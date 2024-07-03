@@ -262,6 +262,7 @@ nav {
 .main-nav-container img {
   border-radius: 25px;
   border: 3px solid #0021CF;
+  width: 80%;
 }
 
 .buttons-nav {

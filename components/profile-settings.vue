@@ -9,6 +9,7 @@ export default {
     return {
       changes: 0,
       user: new User(),
+      avaBlob: new Blob(),
     };
   },
   watch: {
@@ -116,12 +117,14 @@ export default {
       let jsonObject = JSON.parse(response.text);
       await Object.assign(this.user, jsonObject);
 
+      const avaInput = document.querySelector("#ava input");
+      avaInput.textContent = this.user.photoUrl;
+
       return true;
     },
     async saveChanges() {
       if (await this.checkChanges()) {
         if (await this.setData()){
-          console.log("gooood")
           window.location.reload()
         }
       }
@@ -131,14 +134,26 @@ export default {
       const numberInput = document.querySelector("#number input");
       const regionSelect = document.querySelector("#region select");
       const emailInput = document.querySelector("#email input");
+      const avaInput = document.querySelector("#ava input");
 
       return (nameInput.value !== '' && nameInput.value !== this.user.name) ||
         (numberInput.value !== '' && numberInput.value !== this.user.number) ||
         (regionSelect.value !== '' && regionSelect.value !== this.user.region) ||
+        (avaInput.textContent !== '' && avaInput.textContent !== this.user.photoUrl) ||
         (emailInput.value !== '' && emailInput.value !== this.user.email);
     },
     async setData(){
       try {
+        const button = document.querySelector(`#ava button`);
+        const computedStyles = window.getComputedStyle(button);
+        const color = computedStyles.color;
+
+        if (color !== "rgb(0, 33, 207)") {
+          if( await this.sendPhoto(this.avaBlob, document.querySelector("#ava input").textContent) === false){
+            return false;
+          }
+        }
+
         const url = 'http://localhost:8080/authentication/authorization';
         const token = Cookies.get('tokenJwt');
 
@@ -157,13 +172,14 @@ export default {
         const numberInput = document.querySelector("#number input").value;
         const regionSelect = document.querySelector("#region select").value;
         const emailInput = document.querySelector("#email input").value;
+        const avaInput = document.querySelector("#ava input").textContent;
 
         const body = {
           name: nameInput,
           number: numberInput,
           email: emailInput,
           password: this.user.password,
-          photoUrl: this.user.photoUrl,
+          photoUrl: avaInput,
           region: regionSelect,
           vkUrl: null,
           tgUrl: null,
@@ -185,9 +201,97 @@ export default {
       }
     },
     async openFileInput() {
-      await this.itemsChange();
-      this.$refs.fileInput.click();
+      const selectPhoto = document.querySelector("#select-photo-input");
+      selectPhoto.click();
+      selectPhoto.addEventListener('change', this.handleFileChange);
     },
+    async handleFileChange(event) {
+      const files = event.target.files;
+      const file = files[0];
+      const reader = new FileReader();
+      const avaInput = document.querySelector("#ava input");
+
+      reader.onload = function(event) {
+        const blob = new Blob([event.target.result], { type: file.type });
+        avaInput.textContent = 'uploads/img/avatars/ava_' + this.user.name + "_" + Math.floor(10000 + Math.random() * 90000) + file.name;
+        const ava = document.querySelector('#ava img');
+        ava.src = URL.createObjectURL(blob);
+        this.avaBlob = blob;
+      }.bind(this);
+
+      reader.readAsArrayBuffer(file);
+    },
+    async changeItemAva() {
+      const button = document.querySelector(`#ava button`);
+      const computedStyles = window.getComputedStyle(button);
+      const avaInput = document.querySelector("#ava input");
+
+
+      const color = computedStyles.color;
+
+      if (color === "rgb(0, 33, 207)") {
+        await this.openFileInput();
+
+        button.style.color = "gray";
+        button.textContent = "Отменить";
+        this.changes++;
+      } else if (color === "rgb(128, 128, 128)") {
+        button.style.color = "#0021CF";
+        button.textContent = "Изменить";
+        avaInput.textContent = this.user.photoUrl;
+
+        const ava = document.querySelector('#ava img');
+
+        ava.src = this.user.photoUrl !== null && this.user.photoUrl !== '' ? require(`../static/${this.user.photoUrl}`) : require('../assets/images/ava-settings.svg');
+
+        this.changes--;
+      }
+    },
+    async sendPhoto(blob, fileName) {
+      console.log('start')
+      try {
+        const formData = new FormData();
+        formData.append('file', blob, fileName);
+        formData.append('fullPath', fileName);
+
+        console.log(`file: ${blob}`);
+        console.log(`fullPath: ${fileName}`);
+
+        const url = 'http://localhost:8080/authentication/authorization/update/file';
+        const token = Cookies.get('tokenJwt');
+
+        console.log(`URL: ${url}`);
+        console.log(`Token: ${token}`);
+
+        const queryParams = {
+          token: token
+        };
+
+        for (let pair of formData.entries()) {
+          console.log(`${pair[0]}: ${pair[1]}`);
+        }
+
+        const response = await request
+          .post(url)
+          .query(queryParams)
+          .send(formData)
+          .set('Accept', 'application/json');
+
+        if (response.ok) {
+          console.log('Файл успешно отправлен');
+          return true;
+        } else {
+          await alert('1К сожалению, произошла ошибка при загрузке фото. Пожалуйста, попробуйте ещё раз чуть позже. Если проблема сохранится, обратитесь в нашу службу технической поддержки. Мы всегда готовы помочь!')
+          await this.$router.push('/auth');
+          return false;
+        }
+      } catch (error) {
+        console.error('Ошибка при выполнении запроса:', error);
+        await alert('2К сожалению, произошла ошибка при загрузке фото. Пожалуйста, попробуйте ещё раз чуть позже. Если проблема сохранится, обратитесь в нашу службу технической поддержки. Мы всегда готовы помочь!')
+        await this.$router.push('/auth');
+        return false;
+      }
+    }
   },
   async mounted() {
     if (await this.getData()) {
@@ -211,12 +315,12 @@ export default {
         Изменить
       </button>
     </div>
-    <div class="settings-items">
+    <div class="settings-items" id="ava">
       <h2>Фото</h2>
       <input id="select-photo-input" class="inputs" type="file" ref="fileInput"  style="display: none;" multiple accept="image/*">
       <h3><img :src="this.user.photoUrl !== null && this.user.photoUrl !== '' ? require(`../static/${this.user.photoUrl}`) : require('../assets/images/ava-settings.svg')"
                alt="Ваше фото профиля"></h3>
-      <button @click="openFileInput" class="change" id="change-userPhoto">
+      <button @click="changeItemAva" class="change" id="change-userPhoto">
         Изменить
       </button>
     </div>
@@ -241,10 +345,10 @@ export default {
     </div>
     <div class="settings-items" id="email">
       <h2>Email</h2>
-      <input class="inputs" id="email" name="email" type="email" placeholder="Почта" pattern=".*[^@]+@[^@]+.*"
+      <input :value="this.user.email" class="inputs" id="email" name="email" type="email" placeholder="Почта" pattern=".*[^@]+@[^@]+.*"
              title="Введите существующий ваш адрес электронной почты"
              oninvalid="this.setCustomValidity('Введите существующий адрес электронной почты')"
-             oninput="this.setCustomValidity('')">
+             oninput="this.setCustomValidity('')"  >
       <h3>{{ this.user.email }}</h3>
       <button @click="itemsChange('email')" class="change" id="change-userEmail">
         Изменить
@@ -325,7 +429,7 @@ export default {
   width: 50px;
   height: 50px;
   border-radius: 25px;
-  border: 2px solid #0021CF;
+  border: px solid #0021CF;
   overflow: hidden;
 }
 
