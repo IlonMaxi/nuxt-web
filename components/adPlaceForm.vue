@@ -155,21 +155,21 @@ export default {
           if (this.counter === 0) {
             this.counter++;
             this.ad.img.img1 = blob;
-            this.ad.img_url.url1 = 'uploads/img/listings/ad_1_' + Math.floor(10000 + Math.random() * 90000) + file.name;
+            this.ad.img_url.url1 = '/uploads/img/listings/ad_1_' + Math.floor(10000 + Math.random() * 90000) + file.name;
             const adImg1 = document.getElementById('ad_img_1');
             adImg1.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="Photo 1">`;
             adImg1.style.backgroundColor = 'transparent';
           } else if (this.counter === 1) {
             this.counter++;
             this.ad.img.img2 = blob;
-            this.ad.img_url.url2 = 'uploads/img/listings/ad_2_' + Math.floor(10000 + Math.random() * 90000) + file.name;
+            this.ad.img_url.url2 = '/uploads/img/listings/ad_2_' + Math.floor(10000 + Math.random() * 90000) + file.name;
             const adImg2 = document.getElementById('ad_img_2');
             adImg2.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="Photo 2">`;
             adImg2.style.backgroundColor = 'transparent';
           } else if (this.counter === 2) {
             this.counter = 0;
             this.ad.img.img3 = blob;
-            this.ad.img_url.url3 = 'uploads/img/listings/ad_3_' + Math.floor(10000 + Math.random() * 90000) + file.name;
+            this.ad.img_url.url3 = '/uploads/img/listings/ad_3_' + Math.floor(10000 + Math.random() * 90000) + file.name;
             const adImg3 = document.getElementById('ad_img_3');
             adImg3.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="Photo 3">`;
             adImg3.style.backgroundColor = 'transparent';
