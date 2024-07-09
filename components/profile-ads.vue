@@ -16,7 +16,7 @@ export default {
       let response = {};
 
       const headers = {
-        'userId': 6  // Using test userId
+        'userId': 1  // Using test userId
       };
       //TODO
 

@@ -784,21 +784,15 @@ main {
 
 @media (max-width: 470px) { 
   main {
-    height: 2600px !important;
+    height: 2900px !important;
   }
 }
 
-@media (min-width: 470px) and (max-width: 580px)  { 
-  main {
-    height: 2200px !important;
+@media (max-width: 705px)  { 
+  .info-commission-txt{
+    width: 90vw;
   }
-}
-
-@media (min-width: 705px)  { 
-  main {
-    height: 2100px !important;
-  }
-}
+} 
 
 @media (max-width: 480px) { 
   #category-select {

@@ -311,7 +311,7 @@ h3 {
 
 @media (min-width: 880px) {
   .buttons-in-content {
-    width: 15vw;
+    width: 10vw;
     height: auto;
     min-height: 60.8px;
   }
